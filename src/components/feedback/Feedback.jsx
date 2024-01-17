@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 
 import SectionTitle from "./SectionTitle/SectionTitle";
 import FeedbackOptions from "./FeedbackOptions";
@@ -7,57 +7,49 @@ import Notification from "./Notification";
 import styles from "./feedback.module.css";
 
 
-class Feedback extends Component {
-    static feedbackOptions = ["good", "neutral", "bad"]
+const feedbackOptions = ["good", "neutral", "bad"]
 
-    state = {
+const Feedback = () => {
+    const [feedback, setFeedback] = useState ({
         good: 0,
         neutral: 0,
         bad: 0,
-    }
+    })
 
-    countTotalFeedback() {
-        const { good, neutral, bad,  } = this.state;
+    const countTotalFeedback = () => {
+        const { good, neutral, bad,  } = feedback;
         const total = good + neutral + bad;
         return total;
     }
-
-    countPositiveFeedbackPercentage() {
-        const total = this.countTotalFeedback();
+    const countPositiveFeedbackPercentage = () => {
+        const total = countTotalFeedback();
         if (!total) {
             return 0;
         }
-        return Number(((this.state.good / total) * 100).toFixed(2));
+        return Number(((feedback.good / total) * 100).toFixed(2));
     }
-
-    leaveFeedback = (keyName) => {
-        this.setState(prevState => {
-            return {
-                [keyName]: prevState[keyName] + 1
-            }
-        })
+    const leaveFeedback = (keyName) => {
+        setFeedback(prevFeedback => ({
+            ...prevFeedback,
+            [keyName]: prevFeedback[keyName] + 1
+        }))
     }
+    const total = countTotalFeedback();
+    const positiveFeedbackPercentage = countPositiveFeedbackPercentage();
 
-    render() {
-        const total = this.countTotalFeedback();
-
-        const countPositiveFeedbackPercentage = this.countPositiveFeedbackPercentage();
-
-
-        return (
-            <div className={styles.wrapper}>
-                <SectionTitle title="Please leave feedback">
-                    <div className={styles.options}>
-                    <FeedbackOptions options={Feedback.feedbackOptions} leaveFeedback={this.leaveFeedback} />
-                    </div>
-                </SectionTitle>
-                <SectionTitle title="Statistics">
-                    {total === 0 ? <Notification></Notification>
-                    : <Statistics total={total} good={this.state.good} neutral={this.state.neutral} bad={this.state.bad} countPositiveFeedbackPercentage={countPositiveFeedbackPercentage} />}
-                </SectionTitle>
-            </div>
-        )
-    }
+    return (
+        <div className={styles.wrapper}>
+            <SectionTitle title="Please leave feedback">
+                <div className={styles.options}>
+                <FeedbackOptions options={feedbackOptions} leaveFeedback={leaveFeedback} />
+                </div>
+            </SectionTitle>
+            <SectionTitle title="Statistics">
+                {total === 0 ? <Notification></Notification>
+                : <Statistics total={total} good={feedback.good} neutral={feedback.neutral} bad={feedback.bad} countPositiveFeedbackPercentage={positiveFeedbackPercentage} />}
+            </SectionTitle>
+        </div>
+    )
 }
 
 export default Feedback;
